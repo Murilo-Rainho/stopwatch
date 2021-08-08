@@ -6,9 +6,8 @@ body {
 
 .main {
   align-items: center;
-  background-repeat: no-repeat;
+  background: no-repeat url("https://images6.alphacoders.com/909/thumb-1920-909641.png");
   background-size: cover;
-  background-image: url("https://images6.alphacoders.com/909/thumb-1920-909641.png");
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -23,10 +22,10 @@ body {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  height: 50vh;
+  min-height: 50vh;
   justify-content: center;
   opacity: 0.7;
-  width: 50vw;
+  min-width: 50vw;
 }
 
 .timer h1 {
@@ -70,10 +69,6 @@ input::-webkit-inner-spin-button {
   color: rgb(48, 165, 2);
 }
 
-.input-number {
-
-}
-
 .two-points {
   padding-top: 6px;
   margin: 0;
@@ -88,9 +83,21 @@ input::-webkit-inner-spin-button {
   font-family: inherit;
   padding: 10px 20px;
   transition: 0.4s;
+  width: 100%;
 }
 
 .button:hover {
   background-color: rgb(48, 165, 2);
   color: #333333;
+}
+
+.music-buttons, .timer-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.volume-buttons {
+  display: flex;
+  width: 100%;
 }

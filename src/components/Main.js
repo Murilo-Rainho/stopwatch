@@ -11,17 +11,14 @@ class Main extends Component {
     this.state = {
       
     }
-
-    this.wabalaba = new Audio(wabalabadubdub);
   }
 
   render() {
-    const {  } = this.state;
     return (
       <div className="main">
         <Stopwatch />
         <section>
-          
+
         </section>
       </div>
     );

@@ -1,10 +1,20 @@
 import React, { Component } from 'react';
 
 import mr_meeseeks from '../songs/mr_meeseeks.mp3';
+import evil_morty from '../songs/evil_morty.mp3';
+import get_schwifty from '../songs/get_schwifty.mp3';
+import i_am_alive from '../songs/i_am_alive.mp3';
+import do_you_feel_it from '../songs/do_you_feel_it.mp3';
 
 class Stopwatch extends Component {
   constructor(props) {
     super(props);
+    
+    this.mr_meeseeks = new Audio(mr_meeseeks);
+    this.evil_morty = new Audio(evil_morty);
+    this.get_schwifty = new Audio(get_schwifty);
+    this.i_am_alive = new Audio(i_am_alive);
+    this.do_you_feel_it = new Audio(do_you_feel_it);
     
     this.state = {
       sec: 0,
@@ -16,47 +26,74 @@ class Stopwatch extends Component {
       soundSituation: true,
       volume: 0.5,
       volumeText: '50%',
+      currentMusic: this.evil_morty,
+      previousMusic: this.do_you_feel_it,
+      nextMusic: this.mr_meeseeks,
+      allMusics: [this.mr_meeseeks, this.evil_morty, this.get_schwifty,
+        this.i_am_alive, this.do_you_feel_it],
     }
-
-    this.mr_meeseeks = new Audio(mr_meeseeks);
   }
 
   playPause = () => {
-    const { musicSituation } = this.state;
+    const { musicSituation, currentMusic } = this.state;
     if (musicSituation) {
-      this.mr_meeseeks.pause();
+      currentMusic.pause();
       this.setState(() => ({ musicSituation: false }));
     } else {
-      this.mr_meeseeks.play();
+      currentMusic.play();
       this.setState(() => ({ musicSituation: true }));
     }
   }
 
   muteOnOff = () => {
-    const { soundSituation } = this.state;
+    const { soundSituation, currentMusic } = this.state;
     if (soundSituation) {
       this.setState(() => ({ soundSituation: false }));
     } else {
       this.setState(() => ({ soundSituation: true }));
     }
-    this.mr_meeseeks.muted = soundSituation;
+    currentMusic.muted = soundSituation;
   }
 
-  volMaxMin = ({ target: { name } }) => {
+  volMaxMin = async ({ target: { name } }) => {
     if (name === 'Max' && this.state.volume <= 0.9) {
-      this.setState(({ volume }) => ({ volume: volume + 1/10 }));
+      this.setState(({ volume }) => ({
+        volume: parseFloat((volume + 0.1).toPrecision(1))
+      }), () => {
+        const { volume, currentMusic } = this.state;
+        currentMusic.volume = volume;
+      });
     } else if (name === 'Min' && this.state.volume >= 0.1) {
-      this.setState(({ volume }) => ({ volume: volume - 1/10 }));
+      this.setState(({ volume }) => ({
+        volume: parseFloat((volume - 0.1).toPrecision(1))
+      }), () => {
+        const { volume, currentMusic } = this.state;
+        currentMusic.volume = volume;
+      });
     }
-    const { volume } = this.state;
-    this.mr_meeseeks.volume = volume;
     this.setState(({ volume }) => ({ volumeText: `${Math.ceil(volume * 100)}%` }));
   }
 
+  musicChange = ({ target: { name } }) => {
+    const { currentMusic, nextMusic, previousMusic, allMusics, volume } = this.state;
+    if (name === 'next') {
+      currentMusic.pause();
+      currentMusic.currentTime = 0;
+      nextMusic.play();
+      nextMusic.volume = volume;
+      this.setState(() => ({
+        previousMusic: currentMusic,
+        currentMusic: nextMusic,
+      }), () => {
+        // const foundMusic = allMusics.find((music) => music === );
+      });
+    }
+  }
+
   turnOn = () => {
-    const { volume } = this.state;
+    const { volume, currentMusic } = this.state;
     this.playPause();
-    this.mr_meeseeks.volume = volume;
+    currentMusic.volume = volume;
     this.setState(() => ({ disappear: 'none',  }));
     const ONE_SECOND = 100;
     let timerSet = setInterval(() => {
@@ -78,7 +115,6 @@ class Stopwatch extends Component {
           }));
         }
       }
-
     }, ONE_SECOND);
     this.setState(() => ({ timerSet: timerSet }))
   }
@@ -156,18 +192,27 @@ class Stopwatch extends Component {
     const { volumeText, musicSituation, soundSituation } = this.state;
     return (
       <section className="music-buttons">
+        <h2>Music Player</h2>
+        <div className="volume-buttons">
+          <button name="Max" onClick={ this.volMaxMin } className="button">
+            Vol. +
+          </button>
+          <button disabled className="button">{volumeText}</button>
+          <button name="Min" onClick={ this.volMaxMin } className="button">
+            Vol. -
+          </button>
+        </div>
         <button onClick={ this.playPause } className="button">
           {musicSituation ? 'Pause' : 'Play'}
         </button>
         <button onClick={ this.muteOnOff } className="button">
           {soundSituation ? 'Mute' : 'Unmute'}
         </button>
-        <button name="Max" onClick={ this.volMaxMin } className="button">
-          Vol. +
+        <button onClick={ this.musicChange } name="next" className="button">
+          Next
         </button>
-        <button disabled className="button">{volumeText}</button>
-        <button name="Min" onClick={ this.volMaxMin } className="button">
-          Vol. -
+        <button onClick={ this.musicChange } name="previous" className="button">
+          Previous
         </button>
       </section>
     );
@@ -183,6 +228,7 @@ class Stopwatch extends Component {
         <section className="timer-buttons_container">
           { this.inputsNumbers() }
           <section className="timer-buttons">
+            <h2>Stopwatch Player</h2>
             <button disabled={ buttonDisable } className="button" onClick={ this.turnOn }>Start</button>
           </section>
           { this.musicButtons() }
