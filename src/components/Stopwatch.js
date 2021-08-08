@@ -13,6 +13,9 @@ class Stopwatch extends Component {
       disappear: 'flex',
       buttonDisable: false,
       musicSituation: false,
+      soundSituation: true,
+      volume: 0.5,
+      volumeText: '50%',
     }
 
     this.mr_meeseeks = new Audio(mr_meeseeks);
@@ -30,13 +33,32 @@ class Stopwatch extends Component {
   }
 
   muteOnOff = () => {
+    const { soundSituation } = this.state;
+    if (soundSituation) {
+      this.setState(() => ({ soundSituation: false }));
+    } else {
+      this.setState(() => ({ soundSituation: true }));
+    }
+    this.mr_meeseeks.muted = soundSituation;
+  }
 
+  volMaxMin = ({ target: { name } }) => {
+    if (name === 'Max' && this.state.volume <= 0.9) {
+      this.setState(({ volume }) => ({ volume: volume + 1/10 }));
+    } else if (name === 'Min' && this.state.volume >= 0.1) {
+      this.setState(({ volume }) => ({ volume: volume - 1/10 }));
+    }
+    const { volume } = this.state;
+    this.mr_meeseeks.volume = volume;
+    this.setState(({ volume }) => ({ volumeText: `${Math.ceil(volume * 100)}%` }));
   }
 
   turnOn = () => {
+    const { volume } = this.state;
     this.playPause();
-    this.setState(() => ({ disappear: 'none' }))
-    const ONE_SECOND = 100
+    this.mr_meeseeks.volume = volume;
+    this.setState(() => ({ disappear: 'none',  }));
+    const ONE_SECOND = 100;
     let timerSet = setInterval(() => {
       const { sec, min, hr } = this.state;
       if (sec === 0 && min === 0 && hr === 0) {
@@ -129,9 +151,30 @@ class Stopwatch extends Component {
       </section>
     );
   }
+
+  musicButtons = () => {
+    const { volumeText, musicSituation, soundSituation } = this.state;
+    return (
+      <section className="music-buttons">
+        <button onClick={ this.playPause } className="button">
+          {musicSituation ? 'Pause' : 'Play'}
+        </button>
+        <button onClick={ this.muteOnOff } className="button">
+          {soundSituation ? 'Mute' : 'Unmute'}
+        </button>
+        <button name="Max" onClick={ this.volMaxMin } className="button">
+          Vol. +
+        </button>
+        <button disabled className="button">{volumeText}</button>
+        <button name="Min" onClick={ this.volMaxMin } className="button">
+          Vol. -
+        </button>
+      </section>
+    );
+  }
   
   render() {
-    const { sec, min, hr, buttonDisable, musicSituation } = this.state;
+    const { sec, min, hr, buttonDisable } = this.state;
     return (
       <section className="stopwatch">
         <section className="timer">
@@ -141,10 +184,8 @@ class Stopwatch extends Component {
           { this.inputsNumbers() }
           <section className="timer-buttons">
             <button disabled={ buttonDisable } className="button" onClick={ this.turnOn }>Start</button>
-            <button onClick={ this.playPause } className="button">
-              {musicSituation ? 'Pause' : 'Play'}
-            </button>
           </section>
+          { this.musicButtons() }
         </section>
       </section>
     );
