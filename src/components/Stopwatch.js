@@ -26,11 +26,14 @@ class Stopwatch extends Component {
       soundSituation: true,
       volume: 0.5,
       volumeText: '50%',
-      currentMusic: this.evil_morty,
-      previousMusic: this.do_you_feel_it,
-      nextMusic: this.mr_meeseeks,
-      allMusics: [this.mr_meeseeks, this.evil_morty, this.get_schwifty,
+      allMusics: [this.get_schwifty, this.evil_morty, this.mr_meeseeks,
         this.i_am_alive, this.do_you_feel_it],
+      previousMusic: this.get_schwifty,
+      currentMusic: this.evil_morty,
+      nextMusic: this.mr_meeseeks,
+      counterMusic: 2,
+      blockNextMusic: false,
+      blockPreviousMusic: true,
     }
   }
 
@@ -75,17 +78,39 @@ class Stopwatch extends Component {
   }
 
   musicChange = ({ target: { name } }) => {
-    const { currentMusic, nextMusic, previousMusic, allMusics, volume } = this.state;
+    const { currentMusic, nextMusic, previousMusic, counterMusic,
+      allMusics, volume } = this.state;
     if (name === 'next') {
       currentMusic.pause();
       currentMusic.currentTime = 0;
       nextMusic.play();
       nextMusic.volume = volume;
-      this.setState(() => ({
-        previousMusic: currentMusic,
-        currentMusic: nextMusic,
+      this.setState((prevState) => ({
+        previousMusic: prevState.currentMusic,
+        currentMusic: prevState.nextMusic,
+        counterMusic: prevState.counterMusic + 1,
+        blockPreviousMusic: false,
       }), () => {
-        // const foundMusic = allMusics.find((music) => music === );
+        if (counterMusic === 4) {
+          this.setState(() => ({ blockNextMusic: true }));
+        }
+        this.setState(({ counterMusic }) => ({ nextMusic: allMusics[counterMusic] }));
+      });
+    } else {
+      currentMusic.pause();
+      currentMusic.currentTime = 0;
+      previousMusic.play();
+      previousMusic.volume = volume;
+      this.setState((prevState) => ({
+        nextMusic: prevState.currentMusic,
+        currentMusic: prevState.previousMusic,
+        counterMusic: prevState.counterMusic - 1,
+        blockNextMusic: false,
+      }), () => {
+        if (counterMusic === 2) {
+          this.setState(() => ({ blockPreviousMusic: true }));
+        }
+        this.setState(({ counterMusic }) => ({ previousMusic: allMusics[counterMusic - 2] }));
       });
     }
   }
@@ -142,13 +167,11 @@ class Stopwatch extends Component {
         this.setState(() => ({ [name]: parseInt(value) }));
       }
     }
-    // if (sec === 0 && min === 0 && hr === 0) {
-    //   this.setState(() => ({ buttonDisable: true }));
-    //   console.log('oi');
-    // } else {
-    //   console.log('ola');
-    //   this.setState(() => ({ buttonDisable: false }));
-    // }
+    if (sec === 0 && min === 0 && hr === 0) {
+      this.setState(() => ({ buttonDisable: true }));
+    } else {
+      this.setState(() => ({ buttonDisable: false }));
+    }
   }
 
   inputsNumbers = () => {
@@ -189,7 +212,8 @@ class Stopwatch extends Component {
   }
 
   musicButtons = () => {
-    const { volumeText, musicSituation, soundSituation } = this.state;
+    const { volumeText, musicSituation, blockNextMusic,
+      soundSituation, blockPreviousMusic } = this.state;
     return (
       <section className="music-buttons">
         <h2>Music Player</h2>
@@ -208,10 +232,10 @@ class Stopwatch extends Component {
         <button onClick={ this.muteOnOff } className="button">
           {soundSituation ? 'Mute' : 'Unmute'}
         </button>
-        <button onClick={ this.musicChange } name="next" className="button">
+        <button disabled={ blockNextMusic } onClick={ this.musicChange } name="next" className="button">
           Next
         </button>
-        <button onClick={ this.musicChange } name="previous" className="button">
+        <button disabled={ blockPreviousMusic } onClick={ this.musicChange } name="previous" className="button">
           Previous
         </button>
       </section>
