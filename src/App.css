@@ -1,6 +1,5 @@
 body {
   font-family: 'Orbitron', sans-serif;
-  margin: 0;
   padding: 0;
 }
 
@@ -10,22 +9,22 @@ body {
   background-size: cover;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   height: 100vh;
+  justify-content: center;
   width: 100vw;
 }
 
 .stopwatch {
   align-items: center;
   background-color: #333333;
-  color: rgb(48, 165, 2);
   border-radius: 10px;
+  color: #44b602;
   display: flex;
   flex-direction: column;
-  min-height: 50vh;
   justify-content: center;
-  opacity: 0.7;
+  min-height: 50vh;
   min-width: 50vw;
+  opacity: 0.7;
 }
 
 .timer h1 {
@@ -41,8 +40,8 @@ body {
 
 .timer-inputs {
   display: flex;
-  height: 100px;
   flex-wrap: wrap;
+  height: 100px;
 }
 
 input::-webkit-outer-spin-button,
@@ -51,33 +50,33 @@ input::-webkit-inner-spin-button {
 }
 
 .input-number {
-  -moz-appearance: textfield;
-  padding: 0 5px;
-  margin: 10px 15px;
-  border-radius: 10px;
-  font-family: inherit;
   background-color: #333333;
-  color: rgb(48, 165, 2);
-  height: 70px;
-  width: 100px;
+  border-radius: 10px;
+  color: #44b602;
+  font-family: inherit;
   font-size: 40px;
+  height: 70px;
+  margin: 10px 15px;
   outline: 0;
+  padding: 0 5px;
   text-align: center;
+  width: 100px;
+  -moz-appearance: textfield;
 }
 
 .input-number::placeholder {
-  color: rgb(48, 165, 2);
+  color: #44b602;
 }
 
 .two-points {
-  padding-top: 6px;
-  margin: 0;
   font-size: 60px;
+  margin: 0;
+  padding-top: 6px;
 }
 
 .button {
   background-color: #333333;
-  color: rgb(48, 165, 2);
+  color: #44b602;
   cursor: pointer;
   font-size: 20px;
   font-family: inherit;
@@ -87,17 +86,22 @@ input::-webkit-inner-spin-button {
 }
 
 .button:hover {
-  background-color: rgb(48, 165, 2);
+  background-color: #44b602;
+  color: #333333;
+}
+
+.button:disabled {
+  background-color: #e25b5b;
   color: #333333;
 }
 
 .music-buttons, .timer-buttons {
+  align-items: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
-.volume-buttons {
+.buttons_subcontainer {
   display: flex;
   width: 100%;
 }

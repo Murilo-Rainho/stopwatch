@@ -21,29 +21,40 @@ class Stopwatch extends Component {
       min: 0,
       hr: 0,
       disappear: 'flex',
-      buttonDisable: false,
-      musicSituation: false,
+      buttonDisable: true,
+      musicSituation: true,
       soundSituation: true,
-      volume: 0.5,
-      volumeText: '50%',
+      volume: 0.2,
+      volumeText: '20%',
       allMusics: [this.get_schwifty, this.evil_morty, this.mr_meeseeks,
         this.i_am_alive, this.do_you_feel_it],
-      previousMusic: this.get_schwifty,
-      currentMusic: this.evil_morty,
-      nextMusic: this.mr_meeseeks,
+      previousMusic: undefined,
+      currentMusic: this.get_schwifty,
+      nextMusic: this.evil_morty,
       counterMusic: 2,
       blockNextMusic: false,
       blockPreviousMusic: true,
     }
   }
 
+  initialMusic = () => {
+    const { currentMusic, volume } = this.state;
+    currentMusic.play();
+    currentMusic.volume = volume;
+  }
+
+  componentDidMount() {
+    // this.initialMusic();
+  }
+
   playPause = () => {
-    const { musicSituation, currentMusic } = this.state;
+    const { musicSituation, currentMusic, volume } = this.state;
     if (musicSituation) {
       currentMusic.pause();
       this.setState(() => ({ musicSituation: false }));
     } else {
       currentMusic.play();
+      currentMusic.volume = volume;
       this.setState(() => ({ musicSituation: true }));
     }
   }
@@ -115,10 +126,13 @@ class Stopwatch extends Component {
     }
   }
 
+  stopTimerSet = () => {
+    this.setState(() => ({ disappear: 'flex' }))
+    let { timerSet } = this.state;
+    clearInterval(timerSet);
+  }
+
   turnOn = () => {
-    const { volume, currentMusic } = this.state;
-    this.playPause();
-    currentMusic.volume = volume;
     this.setState(() => ({ disappear: 'none',  }));
     const ONE_SECOND = 100;
     let timerSet = setInterval(() => {
@@ -144,18 +158,17 @@ class Stopwatch extends Component {
     this.setState(() => ({ timerSet: timerSet }))
   }
 
-  stopTimerSet = () => {
-    this.setState(() => ({ disappear: 'flex' }))
-    let { timerSet } = this.state;
-    this.setState(() => ({ sec: 0 }))
-    clearInterval(timerSet);
-  }
-
   handleChange = ({ target }) => {
-    const { sec, min, hr } = this.state;
     const { name, value } = target;
     if (!value) {
-      this.setState(() => ({ [name]: 0 }));
+      this.setState(() => ({ [name]: 0 }), () => {
+        const { sec, min, hr } = this.state;
+        if (sec === 0 && min === 0 && hr === 0) {
+          this.setState(() => ({ buttonDisable: true }));
+        } else {
+          this.setState(() => ({ buttonDisable: false }));
+        }
+      });
     } else {
       if (name === 'hr' && value > 23) {
         this.setState(() => ({ [name]: 23 }));
@@ -164,14 +177,17 @@ class Stopwatch extends Component {
         this.setState(() => ({ [name]: 59 }));
         target.value = 59;
       } else {
-        this.setState(() => ({ [name]: parseInt(value) }));
+        this.setState(() => ({ [name]: parseInt(value) }), () => {
+          const { sec, min, hr } = this.state;
+          if (sec === 0 && min === 0 && hr === 0) {
+            this.setState(() => ({ buttonDisable: true }));
+          } else {
+            this.setState(() => ({ buttonDisable: false }));
+          }
+        });
       }
     }
-    if (sec === 0 && min === 0 && hr === 0) {
-      this.setState(() => ({ buttonDisable: true }));
-    } else {
-      this.setState(() => ({ buttonDisable: false }));
-    }
+
   }
 
   inputsNumbers = () => {
@@ -217,7 +233,7 @@ class Stopwatch extends Component {
     return (
       <section className="music-buttons">
         <h2>Music Player</h2>
-        <div className="volume-buttons">
+        <div className="buttons_subcontainer">
           <button name="Max" onClick={ this.volMaxMin } className="button">
             Vol. +
           </button>
@@ -232,12 +248,14 @@ class Stopwatch extends Component {
         <button onClick={ this.muteOnOff } className="button">
           {soundSituation ? 'Mute' : 'Unmute'}
         </button>
-        <button disabled={ blockNextMusic } onClick={ this.musicChange } name="next" className="button">
-          Next
-        </button>
-        <button disabled={ blockPreviousMusic } onClick={ this.musicChange } name="previous" className="button">
-          Previous
-        </button>
+        <div className="buttons_subcontainer">
+          <button disabled={ blockPreviousMusic } onClick={ this.musicChange } name="previous" className="button">
+            Previous
+          </button>
+          <button disabled={ blockNextMusic } onClick={ this.musicChange } name="next" className="button">
+            Next
+          </button>
+        </div>
       </section>
     );
   }
